@@ -33,6 +33,8 @@ public class PoissonSolverCalculations {
 		g.resetCurrent();
 		
 		this.poisolver = new PoissonSolverFFTPeriodic();
+		poisolver.initializeIterator(stt.getCellIterator(), g.getNumCellsX(),
+				g.getNumCellsY());
 	}
 	
 	private double[][] pointChargeShifted(int numCellsX, int numCellsY) {
