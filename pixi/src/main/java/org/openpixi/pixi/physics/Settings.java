@@ -9,7 +9,6 @@ import org.openpixi.pixi.parallel.particleaccess.SequentialParticleIterator;
 import org.openpixi.pixi.physics.collision.algorithms.CollisionAlgorithm;
 import org.openpixi.pixi.physics.collision.detectors.Detector;
 import org.openpixi.pixi.physics.fields.FieldSolver;
-import org.openpixi.pixi.physics.fields.PoissonSolver;
 import org.openpixi.pixi.physics.fields.PoissonSolverFFTPeriodic;
 import org.openpixi.pixi.physics.fields.SimpleSolver;
 import org.openpixi.pixi.physics.force.CombinedForce;
@@ -65,7 +64,7 @@ public class Settings {
 	private int gridCellsY = 10;
 
 	private FieldSolver gridSolver = new SimpleSolver();
-	private PoissonSolver poissonSolver = new PoissonSolverFFTPeriodic();
+	private FieldSolver poissonSolver = new PoissonSolverFFTPeriodic();
 
 	private boolean useGrid = true;
 
@@ -144,7 +143,7 @@ public class Settings {
 		return ClassCopier.copy(gridSolver);
 	}
 
-	public PoissonSolver getPoissonSolver() {
+	public FieldSolver getPoissonSolver() {
 		return poissonSolver;
 	}
 
@@ -325,7 +324,7 @@ public class Settings {
 		this.gridSolver = gridSolver;
 	}
 
-	public void setPoissonSolver(PoissonSolver poissonSolver) {
+	public void setPoissonSolver(FieldSolver poissonSolver) {
 		this.poissonSolver = poissonSolver;
 	}
 

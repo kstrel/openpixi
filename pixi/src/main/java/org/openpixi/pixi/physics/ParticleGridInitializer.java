@@ -1,6 +1,6 @@
 package org.openpixi.pixi.physics;
 
-import org.openpixi.pixi.physics.fields.PoissonSolver;
+import org.openpixi.pixi.physics.fields.FieldSolver;
 import org.openpixi.pixi.physics.grid.Grid;
 import org.openpixi.pixi.physics.grid.Interpolation;
 
@@ -11,10 +11,10 @@ import java.util.List;
  * the other class.
  */
 public class ParticleGridInitializer {
-	public void initialize(Interpolation interpolation, PoissonSolver poissonSolver,
-	                       List<Particle> particles, Grid grid) {
+	public void initialize(Interpolation interpolation, FieldSolver poissonSolver,
+	                       List<Particle> particles, Grid grid, double tstep) {
 		interpolation.interpolateChargedensity(particles, grid);
-		poissonSolver.solve(grid);
+		poissonSolver.step(grid, tstep);
 		for (Particle p: particles){
 			// Assuming rectangular particle shape i.e. area weighting
 			p.setChargedensity(p.getCharge() / (grid.getCellWidth() * grid.getCellHeight()));

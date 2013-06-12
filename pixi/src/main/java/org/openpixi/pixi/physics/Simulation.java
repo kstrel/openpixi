@@ -21,7 +21,7 @@ package org.openpixi.pixi.physics;
 
 import org.openpixi.pixi.physics.collision.algorithms.CollisionAlgorithm;
 import org.openpixi.pixi.physics.collision.detectors.Detector;
-import org.openpixi.pixi.physics.fields.PoissonSolver;
+import org.openpixi.pixi.physics.fields.FieldSolver;
 import org.openpixi.pixi.physics.force.CombinedForce;
 import org.openpixi.pixi.physics.force.SimpleGridForce;
 import org.openpixi.pixi.physics.grid.Grid;
@@ -69,7 +69,7 @@ public class Simulation {
 	private Interpolation interpolation;
 
 	/**solver for the electrostatic poisson equation*/
-	private PoissonSolver poisolver;
+	private FieldSolver poisolver;
 
 
 	public Interpolation getInterpolation() {
@@ -124,9 +124,13 @@ public class Simulation {
 		}
 
 		poisolver = settings.getPoissonSolver();
+		poisolver.initializeIterator(settings.getCellIterator(), grid.getNumCellsX(),
+				grid.getNumCellsY());
+		
 		interpolation = new LocalInterpolation(
 				settings.getInterpolator(), settings.getParticleIterator());
-		particleGridInitializer.initialize(interpolation, poisolver, particles, grid);
+		particleGridInitializer.initialize(interpolation, poisolver, particles, grid,
+				tstep);
 
 		detector = settings.getCollisionDetector();
 		collisionalgorithm = settings.getCollisionAlgorithm();

@@ -2,7 +2,7 @@ package org.openpixi.pixi.ui;
 
 import org.openpixi.pixi.physics.Settings;
 import org.openpixi.pixi.physics.Simulation;
-import org.openpixi.pixi.physics.fields.PoissonSolver;
+import org.openpixi.pixi.physics.fields.FieldSolver;
 import org.openpixi.pixi.physics.fields.PoissonSolverFFTPeriodic;
 import org.openpixi.pixi.physics.fields.YeeSolver;
 import org.openpixi.pixi.physics.grid.ChargeConservingAreaWeighting;
@@ -15,7 +15,7 @@ public class PoissonSolverCalculations {
 	
 	private Simulation s;
 	private Grid g;
-	private PoissonSolver poisolver;
+	private FieldSolver poisolver;
 	
 	public PoissonSolverCalculations() {
 
@@ -70,17 +70,15 @@ public class PoissonSolverCalculations {
 		return rho;
 	}
 	
-	private double[][] lineChargeOnSide(int numCellsX, int numCellsY) {
-		double[][] rho = new double[numCellsX][numCellsY];
+	private void lineChargeOnSide(int numCellsX, int numCellsY) {
 		double charge = 1;		
 		for(int i = 0; i < numCellsY; i++) {
-				rho[0][i] = charge;			
+				g.setRho(0, i, charge);			
 		}
-		return rho;
+		return;
 	}
 	
-	private double[][] randomChargeDistribution(int numCellsX, int numCellsY) {
-		double[][] rho = new double[numCellsX][numCellsY];
+	private void randomChargeDistribution(int numCellsX, int numCellsY) {
 		double charge = 10;
 		if (Math.random() < 0.5) {
 			charge = -charge;
@@ -91,21 +89,21 @@ public class PoissonSolverCalculations {
 			}
 		}
 		
-		return rho;
+		return;
 	}
 	
 	public static void output(Grid g) {
 		
 		double aspectratio = g.getCellHeight() * g.getNumCellsY() / g.getCellWidth() * g.getNumCellsX();
 		//deletes the old files
-		File file1 = new File("\\efeld.dat");
+		File file1 = new File("/home/kirill/out/efeld.dat");
 		file1.delete();
-		File file2 = new File("\\potential.dat");
+		File file2 = new File("/home/kirill/out/potential.dat");
 		file2.delete();
 		
-		//creates new file "efield.dat" in working directory and writes
+		//creates new file "efield" in working directory and writes
 		//field data to it
-		WriteFile fieldFile = new WriteFile("efeld", "");
+		WriteFile fieldFile = new WriteFile("efeld", "/home/kirill/out/");
 		for (int i = 0; i < g.getNumCellsX(); i++) {
 			for(int j = 0; j < g.getNumCellsY(); j++) {
 				fieldFile.writeLine(i*g.getCellWidth() + "\t" + j*g.getCellHeight() +
@@ -114,7 +112,7 @@ public class PoissonSolverCalculations {
 		}
 		fieldFile.closeFstream();
 		
-		WriteFile potentialFile = new WriteFile("potential", "");
+		WriteFile potentialFile = new WriteFile("potential", "/home/kirill/out/");
 		for (int i = 0; i < g.getNumCellsX(); i++) {
 			for(int j = 0; j < g.getNumCellsY(); j++) {
 				potentialFile.writeLine(i*g.getCellWidth() + "\t" + j*g.getCellHeight()  + "\t" + g.getPhi(i, j));
@@ -125,19 +123,19 @@ public class PoissonSolverCalculations {
 		//YOU NEED GNUPLOT FOR THIS http://www.gnuplot.info/
 		//NEEDS TO BE IN YOUR EXECUTION PATH (i.e. PATH variable on windows)
 		//plots the above output as vector field
-		try {
-		Runtime gnuplotrt = Runtime.getRuntime();
-		Process gnuplotpr = gnuplotrt.exec("gnuplot -e \"set term png; set size ratio " + aspectratio + "; set output 'D:\\efield.png'; plot 'D:\\efeld.dat' using 1:2:3:4 with vectors head filled lt 2\"");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		//plots potential
-		try {
-		Runtime gnuplotPotentialRt = Runtime.getRuntime();
-		Process gnuplotPotentialPr = gnuplotPotentialRt.exec("gnuplot -e \"set term png; set size ratio " + aspectratio + "; set output 'D:\\potential.png'; plot 'D:\\potential.dat' using 1:2:3 with circles linetype palette \"");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//		Runtime gnuplotrt = Runtime.getRuntime();
+//		Process gnuplotpr = gnuplotrt.exec("gnuplot -e \"set term png; set size ratio " + aspectratio + "; set output '/home/kirill/efield.png'; plot '/home/kirill/efeld' using 1:2:3:4 with vectors head filled lt 2\"");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		//plots potential
+//		try {
+//		Runtime gnuplotPotentialRt = Runtime.getRuntime();
+//		Process gnuplotPotentialPr = gnuplotPotentialRt.exec("gnuplot -e \"set term png; set size ratio " + aspectratio + "; set output '/home/kirill/potential.png'; plot '/home/kirill/potential' using 1:2:3 with circles linetype palette \"");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	public static void main(String[] args) {
@@ -147,13 +145,15 @@ public class PoissonSolverCalculations {
 		pc.randomChargeDistribution(pc.g.getNumCellsX(), pc.g.getNumCellsY());
 				
 		long start = System.currentTimeMillis();
-		pc.poisolver.solve(pc.g);				
+		//The PoissonSolver does not need the timestep parameter, therefore it is set to 0 here
+		pc.poisolver.step(pc.g, 0);				
 		long elapsed = System.currentTimeMillis()-start;
 		System.out.println("\nCalculation time: "+elapsed);
 		
-		PoissonSolverCalculations.output(pc.g);
+//		PoissonSolverCalculations.output(pc.g);
 		
-		interpolatorAndPoissonsolver();
+		return;
+		
 	}
 	
 	public static void interpolatorAndPoissonsolver() {

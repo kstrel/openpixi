@@ -12,7 +12,7 @@ public class PoissonSolverTest extends TestCase {
 	private double ACCURACY_LIMIT = 1.e-5;
 	private Simulation s;
 	private Grid g;
-	private PoissonSolver poisolver;
+	private FieldSolver poisolver;
 
 	/**Tests whether the Poisson Euation is solved correctly for
 	 * different charge distributions by comparing the output of
@@ -39,7 +39,8 @@ public class PoissonSolverTest extends TestCase {
 		//for this charge distribution
 		ChargeDistribution charged = new PointChargeDistributionCenter(g.getNumCellsX(), g.getNumCellsY());
 		//solves poisson equation
-		poisolver.solve(g);
+		//The poissonSolver does not need the timestep parameter, therefore its set to 0 here
+		poisolver.step(g, 0);
 		//compares with analytic result
 
 		// TODO: Test does not work:
